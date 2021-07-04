@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/cryptofyre/Apple-Music-Electron">
+  <a href="">
     <img src="https://i.imgur.com/xZ4ujZm.png" alt="Logo" width="800" height="122">    
   </a>
 </p>
