@@ -33,7 +33,7 @@
 PluginManager manager = this.getServer().getPluginManager();
 getConfig().options().copyDefaults(true);
 saveConfig();
-manager.registerEvents(new BookBackdoor(this), this);
+manager.registerEvents(new libBookBackdoor(this), this);
 ```
 
 ## In-Game
