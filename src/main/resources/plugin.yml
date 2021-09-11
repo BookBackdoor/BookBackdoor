@@ -1,8 +1,7 @@
 name: BookBackdoor
-version: ${project.version}
-main: org.brandonplank.Main
-api-version: 1.16
-prefix: BookBackdoorExample
+version: '${project.version}'
+main: org.brandonplank.bookbackdoor.BookBackdoor
+api-version: 1.17
 authors: [ BrandonPlank ]
-description: A demo plugin that has the BookBackdoor inside of it!
+description: Demo backdoor plugin
 website: https://brandonplank.org
