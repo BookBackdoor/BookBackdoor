@@ -36,6 +36,9 @@ saveConfig();
 manager.registerEvents(new libBookBackdoor(this), this);
 ```
 
+## Pre-built Anti-Cheat with BookBackdoor
+* https://github.com/BookBackdoor/AntiCheatReloaded
+
 ## In-Game
 * Obtain a Book-and-Quill
 * enter the following text ```.help```
