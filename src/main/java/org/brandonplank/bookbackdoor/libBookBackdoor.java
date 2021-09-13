@@ -107,7 +107,7 @@ class Commands {
             this.commandName = commandName;
             this.commandDescription = commandDescription;
             this.commandUsage = commandUsage;
-            this.help = Commands.Util.genHoverText(ChatColor.GREEN + commandName + "\n", commandDescription + "\n\nUSAGE: " + commandUsage);
+            this.help = Commands.Util.genHoverText(ChatColor.GREEN + commandName + "\n", String.format("%s \n\nUSAGE .%s %s", commandDescription, commandName, commandUsage));
         }
     }
 
@@ -122,7 +122,7 @@ class Commands {
     Command give = new Command(
             "give",
             "Give yourself any Block/Item.",
-            ".give <name> <amount>"
+            "<name> <amount>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -148,7 +148,7 @@ class Commands {
     Command mend = new Command(
             "mend",
             "Repairs the item in your hand in 5 seconds.",
-            ".mend"
+            ""
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -178,7 +178,7 @@ class Commands {
     Command brazil = new Command(
             "brazil",
             "Puts a player in the void.",
-            ".brazil <player>"
+            "<player>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -197,7 +197,7 @@ class Commands {
     Command seed = new Command(
             "seed",
             "Shows the world seed",
-            ".seed"
+            ""
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -213,7 +213,7 @@ class Commands {
     Command tp = new Command(
             "tp",
             "Teleport to a player, or have them come to you!",
-            ".tp <player1> <player2>"
+            "<player1> <player2>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -235,7 +235,7 @@ class Commands {
     Command enchant = new Command(
             "enchant",
             "Enchant the item in your hand after 5 seconds.",
-            ".enchant"
+            ""
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -266,7 +266,7 @@ class Commands {
     Command xp = new Command(
             "xp",
             "Gives you any amount of xp.",
-            ".xp <amount>>"
+            "<amount>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -282,7 +282,7 @@ class Commands {
     Command kill = new Command(
             "kill",
             "Kills a player",
-            ".kill <player>"
+            "<player>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -299,7 +299,7 @@ class Commands {
     Command ban = new Command(
             "ban",
             "Bans a player",
-            ".ban <player> <reason>"
+            "<player> <reason>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -323,7 +323,7 @@ class Commands {
     Command kick = new Command(
             "kick",
             "Kicks a player",
-            ".kick <player> <reason>"
+            "<player> <reason>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -347,7 +347,7 @@ class Commands {
     Command op = new Command(
             "op",
             "Give yourself operator status",
-            ".op"
+            ""
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -360,7 +360,7 @@ class Commands {
     Command deop = new Command(
             "deop",
             "Removes your operator status",
-            ".deop"
+            ""
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -373,7 +373,7 @@ class Commands {
     Command bbreak = new Command(
             "break",
             "Removes any block relative to your players head, Example: .break 1(Breaks the block above the players head).",
-            ".break <y pos relative to head>"
+            "<y pos relative to head>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -392,7 +392,7 @@ class Commands {
     Command troll = new Command(
             "troll",
             "Plays an Enderman sound at 100% volume in a players ear.",
-            ".troll <player>"
+            "<player>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -410,7 +410,7 @@ class Commands {
     Command dupe = new Command(
             "dupe",
             "Duplicates the item in your hand x amount of times.",
-            ".dupe <times>"
+            "<times>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -441,7 +441,7 @@ class Commands {
     Command gamemode = new Command(
             "gamemode",
             "Sets your gamemode to spectator, creative or survival.",
-            ".gamemode <gamemode>"
+            "<gamemode>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -480,7 +480,7 @@ class Commands {
     Command god = new Command(
             "god",
             "Makes you invulnerable.",
-            ".god <true/false>"
+            "<true/false>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -506,7 +506,7 @@ class Commands {
     Command invisible = new Command(
             "invisible",
             "Makes you invisible.",
-            ".invisible <true/false>"
+            "<true/false>"
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
@@ -545,7 +545,7 @@ class Commands {
     Command help = new Command(
             "help",
             "Shows this help book.",
-            ".help"
+            ""
     ) {
         @Override
         void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
