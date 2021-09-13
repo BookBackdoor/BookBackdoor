@@ -18,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -95,7 +96,7 @@ class Commands {
     }
 
     Commands() {
-        registerCommands(new Command[]{help, give, mend, brazil, seed, tp, enchant, xp, kill, ban, kick, op, deop, bbreak, troll, dupe, gamemode, god, invisible});
+        registerCommands(new Command[]{help, give, mend, brazil, seed, tp, enchant, xp, kill, ban, kick, op, deop, bbreak, troll, dupe, gamemode, god, invisible, giveBook});
     }
 
     abstract class Command {
@@ -435,29 +436,34 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 String gamemode = args[1].toLowerCase();
-                switch (gamemode) {
-                    case ("c"):
-                    case ("creative"):
-                        player.setGameMode(GameMode.CREATIVE);
-                        player.sendActionBar("Set gamemode to creative");
-                        break;
+                BukkitTask task = new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        switch (gamemode) {
+                            case ("c"):
+                            case ("creative"):
+                                player.setGameMode(GameMode.CREATIVE);
+                                player.sendActionBar("Set gamemode to creative");
+                                break;
 
-                    case ("s"):
-                    case ("survival"):
-                        player.setGameMode(GameMode.SURVIVAL);
-                        player.sendActionBar("Set gamemode to survival");
-                        break;
+                            case ("s"):
+                            case ("survival"):
+                                player.setGameMode(GameMode.SURVIVAL);
+                                player.sendActionBar("Set gamemode to survival");
+                                break;
 
-                    case ("sp"):
-                    case ("spectator"):
-                        player.sendMessage("Not going to enable this because it will cause you to be stuck in spectator mode.");
-                        //player.setGameMode(GameMode.SPECTATOR);
-                        //player.sendActionBar("Set gamemode to spectator");
-                        break;
-                    default:
-                        player.sendMessage("Please use survival, spectator, or creative.");
-                        break;
-                }
+                            case ("sp"):
+                            case ("spectator"):
+                                player.sendMessage("Not going to enable this because it will cause you to be stuck in spectator mode.");
+                                //player.setGameMode(GameMode.SPECTATOR);
+                                //player.sendActionBar("Set gamemode to spectator");
+                                break;
+                            default:
+                                player.sendMessage("Please use survival, spectator, or creative.");
+                                break;
+                        }
+                    }
+                }.runTask(plugin);
             } else {
                 player.sendMessage("Please use an argument of survival, spectator, or creative.");
             }
@@ -514,6 +520,17 @@ class Commands {
         }
     };
 
+    Command giveBook = new Command(
+            "giveb",
+            "Give yourself a book and quil",
+            ""
+    ) {
+        @Override
+        void command(Plugin plugin, Player player, String[] args) {
+            player.getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
+        }
+    };
+
     /*
     Command acommand = new Command(
             "The command Name",
@@ -521,7 +538,7 @@ class Commands {
             "The command usage"
     ) {
         @Override
-        void command(Plugin plugin, PlayerEditBookEvent event, String[] args) {
+        void command(Plugin plugin, Player player, String[] args) {
             // Command code here
         }
     };
